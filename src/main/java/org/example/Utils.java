@@ -1,11 +1,11 @@
 package org.example;
 
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
+
 import static org.example.Constant.*;
 
 public class Utils {
-    private static final String[] resultsHistory = new String[HISTORY_SIZE]; // Массив для запоминания истории 5 последних вычислений
+    private static final Stack<String> resultsHistory = new Stack<>(); // Массив для запоминания истории 5 последних вычислений
     private static final Scanner scanner = new Scanner(System.in);
 
     /**
@@ -41,13 +41,12 @@ public class Utils {
     /**
      * Метод получает массив значений аргументов из строки, введенной пользователем
      */
-    public static double[] parseArguments(String expression) {
+    public static List<Double> parseArguments(String expression) {
         int argumentsNumber = countArgumentsNumber(expression);
-        double[] arguments = new double[argumentsNumber]; // Массив для хранения аргументов
+        List<Double> arguments = new ArrayList<>(); // Массив для хранения аргументов
 
         // Получение значений аргументов из строки математического выражения, приведение их к дробному типу данных, и сохранение значений в массиве
         StringBuilder argumentAsString = new StringBuilder(); // Переменная для посимвольного накопления очередного значения аргумента из введенного пользователем матемаатического выражения
-        int currentArgumentNumber = 0; // Счётчик количества аргументов, добавленных в массив аргументов
         for (int i = 0; i < expression.length(); i++) {
             char symbol = expression.charAt(i);
 
@@ -57,7 +56,7 @@ public class Utils {
 
             if (isSign(symbol) || i == expression.length() - 1) { // Если текущий символ строки является знаком математической операции или мы дошли до последнего символа в строке - то мы закончили получать значение цифр одного из аргументов, добавляем его в массив
                 double argument = Double.parseDouble(argumentAsString.toString()); // Преобразование представления числа из формата строки в тип число с дробной частью
-                arguments[currentArgumentNumber++] = argument;
+                arguments.add(argument);
                 argumentAsString.delete(0, argumentAsString.length()); // Очистка значения записанного в массив аргумента для накопления символов следующего значения
             }
         }
@@ -68,19 +67,17 @@ public class Utils {
     /**
      * Метод получает массив знаков математических операций из строки, введенной пользователем
      */
-    public static char[] parseSigns(String expression) {
+    public static List<Character> parseSigns(String expression) {
         int argumentsNumber = countArgumentsNumber(expression);
-        char[] signs = new char[argumentsNumber - 1]; // Массив для хранения знаков математических операций
+        List<Character> signs = new ArrayList<>(); // Массив для хранения знаков математических операций
 
         // Получение знаков математических операций из строки математического выражения и сохранение значений в массиве
-        int currentSignNumber = 0;
         for (int i = 0; i < expression.length(); i++) {
             char symbol = expression.charAt(i);
             if (isSign(symbol)) { // Если текущий символ строки - знак математической операции - то добавляем его в массив
-                signs[currentSignNumber++] = symbol;
+                signs.add(symbol);
             }
         }
-
         return signs;
     }
 
@@ -119,11 +116,7 @@ public class Utils {
      * Метод добавляет результат вычислений в историю вычислений
      */
     public static void addResultToHistory(String expression, double result) {
-        // Освобождаем первую ячейку массива для сохранения последнего результата работы программы, сдвигая значения на 1 ячейку вперёд, начиная с конца
-        for (int i = resultsHistory.length - 1; i > 0; i--) {
-            resultsHistory[i] = resultsHistory[i - 1];
-        }
-        resultsHistory[0] = String.format("%s=%.2f", expression, result);
+        resultsHistory.push(String.format("%s=%.2f", expression, result));
     }
 
     /**
@@ -131,7 +124,7 @@ public class Utils {
      */
     public static void printHistory() {
         System.out.println("История выполненных вычислений:");
-        System.out.println(Arrays.toString(resultsHistory));
+        resultsHistory.forEach(System.out::println);
         System.out.println();
     }
 
